@@ -11,11 +11,34 @@ public class Encryption {
     static String encryption(String s) {
 
         String cleanMsg = getCleanMsg(s);
-        int[][] matrix = initMatrix(cleanMsg);
-        return "";
+        int[] gridAxis = getGridAxis(cleanMsg);
+        String encrypted = encryptMsg(cleanMsg, gridAxis);
+        return encrypted;
     }
 
-    static int[][] initMatrix(String msg) {
+
+    static String encryptMsg(String msg, int[] gridAxis) {
+
+        String encrypted = new String();
+
+        int row = 0;
+
+        for (int ind1 = 0; ind1 < gridAxis[1]; ind1++) {
+            int column = 0 + row;
+            while (column < msg.length()) {
+                encrypted += msg.charAt(column);
+                column += gridAxis[1];
+            }
+            row++;
+            encrypted += " ";
+        }
+        return encrypted;
+    }
+
+
+    static int[] getGridAxis(String msg) {
+
+        int[] matrix = new int[2];
 
         int row = (int) Math.floor(Math.sqrt(msg.length()));
         int column = (int) Math.ceil(Math.sqrt(msg.length()));
@@ -24,7 +47,8 @@ public class Encryption {
             row++;
         }
 
-        int[][] matrix = new int[row][column];
+        matrix[0] = row;
+        matrix[1] = column;
 
         return matrix;
     }
