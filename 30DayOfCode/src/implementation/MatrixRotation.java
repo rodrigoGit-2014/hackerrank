@@ -1,11 +1,13 @@
 package implementation;
 
 public class MatrixRotation {
-
     public static void main(String[] args) {
         int[] arr = new int[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
         int[][] matrix = new int[][]{
-                {1, 2, 3, 4}, {12, 1, 2, 5}, {11, 4, 3, 6}, {10, 9, 8, 7}
+                {1, 2, 3, 4},
+                {12, 1, 2, 5},
+                {11, 4, 3, 6},
+                {10, 9, 8, 7}
         };
         processMatrix(matrix, 4);
         //int[] shiftedArr = rotate(arr, 10);
@@ -13,96 +15,56 @@ public class MatrixRotation {
     }
 
 
-    public static void processMatrix(int[][] matrix, int factor) {
-        int col = matrix[0].length;
-        int row = matrix.length;
-        System.out.println("row: " + row + " col: " + col);
+    public static void processMatrix(int[][] matrixRotation, int factor) {
 
-
-        int totalElements = row * col;
-        int currentElements = 0;
-        int initIndex = 0;
-
-        while (currentElements < totalElements) {
-            currentElements += ((row * 2) + (col * 2)) - 4;
-            fillArray2(matrix, ((row * 2) + (col * 2)) - 4, initIndex);
-            row -= 2;
-            col -= 2;
-            initIndex++;
-
+        Matrix matrix = new Matrix(matrixRotation);
+        while (matrix.isMoreSlayerToProcess()) {
+            int[] slayer = getSlayerArray(matrixRotation, matrix);
+            matrix.updateMatrix();
         }
-
-        System.out.println();
     }
 
-    public static int[] fillArray2(int[][] matrix, int totalElements, int initIndex) {
-        int[] arr = new int[totalElements];
-        fillBorders(matrix, arr, totalElements, initIndex, initIndex, 0);
+    public static int[] getSlayerArray(int[][] matrixRotation, Matrix matrix) {
+        int[] arr = new int[matrix.getCurrentElement()];
+        fillBorders(matrixRotation, arr, matrix.getCurrentElement(), matrix.getInitIndex(), matrix.getInitIndex(), 0, matrix);
         return arr;
     }
 
-    public static void fillBorders(int[][] matrix, int[] arr, int totalElement, int startRow, int startCol, int indexArr) {
+    public static void fillBorders(int[][] matrixRotation, int[] arr, int totalElement, int startRow,
+                                   int startCol, int indexArr, Matrix matrix) {
 
         if (indexArr == totalElement) return;
         else {
-
-            arr[indexArr] = matrix[startRow][startCol];
-
-            if (indexArr < (matrix[0].length - 1)) {
-                fillBorders(matrix, arr, totalElement, startRow, startCol + 1, indexArr + 1);
-                System.out.println();
+            // if (indexArr < (matrixRotation[0].length - 1)) {
+            if (indexArr < (matrix.col)) {
+                arr[indexArr] = matrixRotation[startRow][startCol];
+                if (indexArr + 1 == matrix.col) {
+                    startRow = startRow + 1;
+                    startCol = startCol - 1;
+                }
+                fillBorders(matrixRotation, arr, totalElement, startRow, startCol + 1, indexArr + 1, matrix);
+                //   } else if (startRow < (matrixRotation.length - 1) && startCol != 0) {
+                //} else if (startRow < (matrix.row - 1) && startCol != matrix.limitMinimum) {
+            } else if (startRow < (matrixRotation.length) && startCol == matrixRotation[0].length - 1) {
+                arr[indexArr] = matrixRotation[startRow][startCol];
+                if (startRow + 1 == matrix.row) {
+                    startRow = startRow - 1;
+                    startCol = startCol - 1;
+                }
+                fillBorders(matrixRotation, arr, totalElement, startRow + 1, startCol, indexArr + 1, matrix);
+                //} else if (startCol > 0) {
+            } else if (startCol > matrix.limitMinimum) {
+                arr[indexArr] = matrixRotation[startRow][startCol];
+                if (startCol - 1 < matrix.limitMinimum) {
+                    startCol = matrix.limitMinimum;
+                }
+                fillBorders(matrixRotation, arr, totalElement, startRow, startCol - 1, indexArr + 1, matrix);
+                //} else if (startCol == 0) {
+            } else if (startCol == matrix.limitMinimum) {
+                arr[indexArr] = matrixRotation[startRow][startCol];
+                fillBorders(matrixRotation, arr, totalElement, startRow - 1, startCol, indexArr + 1, matrix);
             }
-            if (startRow < (matrix.length - 1) && startCol != 0) {
-                fillBorders(matrix, arr, totalElement, startRow + 1, startCol, indexArr + 1);
-                System.out.println();
-            }
-            if (startCol > 0) {
-                fillBorders(matrix, arr, totalElement, startRow, startCol - 1, indexArr + 1);
-                System.out.println();
-            }
-            fillBorders(matrix, arr, totalElement, startRow - 1, startCol, indexArr + 1);
-            System.out.println();
         }
-    }
-
-
-    public static int[] fillArray(int[][] matrix, int row, int col) {
-        int totalElements = ((row * 2) + (col * 2)) - 4;
-        int[] arr = new int[totalElements];
-
-        int rowRef = matrix[0].length - row;
-        int colRef = matrix.length - col;
-
-        for (int ind = 0; ind < totalElements; ind++) {
-
-            arr[ind] = matrix[rowRef][colRef];
-
-            if ((rowRef == 0) && (colRef < col || colRef >= (totalElements - col))) {
-                colRef++;
-            } else if ((rowRef + 1) == row) {
-                colRef--;
-            } else if (colRef != 0 && rowRef < row) {
-                rowRef++;
-            } else if (colRef == 0 && rowRef > 1) {
-                rowRef--;
-            }
-
-            if (colRef == col && rowRef < row) {
-                rowRef++;
-                colRef--;
-            }
-            if (rowRef == row) {
-                rowRef--;
-                colRef--;
-            }
-
-            if (colRef < 0) {
-                colRef = 0;
-                rowRef--;
-            }
-
-        }
-        return arr;
     }
 
 
@@ -141,6 +103,46 @@ public class MatrixRotation {
 
     private static int incrementIndex(int ind) {
         return ind + 1;
+    }
+
+    public static class Matrix {
+        public int row;
+        public int col;
+        public int totElement;
+        public int currentTotElement;
+        public int initIndex;
+        public int limitMinimum;
+
+        public Matrix(int[][] m) {
+            this.row = m.length;
+            this.col = m[0].length;
+            this.totElement = this.row * this.col;
+            this.currentTotElement = 0;
+            this.initIndex = 0;
+        }
+
+
+        public boolean isMoreSlayerToProcess() {
+            boolean continueProcessing = this.currentTotElement < totElement;
+            this.currentTotElement = ((row * 2) + (col * 2)) - 4;
+            return continueProcessing;
+        }
+
+        public int getCurrentElement() {
+            return this.currentTotElement;
+        }
+
+        public void updateMatrix() {
+            this.row -= 2;
+            this.col -= 2;
+            this.initIndex++;
+            this.limitMinimum = this.initIndex;
+
+        }
+
+        public int getInitIndex() {
+            return this.initIndex;
+        }
     }
 }
 
