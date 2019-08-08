@@ -16,18 +16,55 @@ public class MatrixRotation {
     public static void processMatrix(int[][] matrix, int factor) {
         int col = matrix[0].length;
         int row = matrix.length;
+        System.out.println("row: " + row + " col: " + col);
 
-        int totalElements = ((row * 2) + (col * 2)) - 4;
-        int[] arr = fillArray(matrix, row, col);
 
-        while (totalElements < row * col) {
-            //totalElements += (((row - 2) * 2) + ((col - 2) * 2)) - 4;
-            arr = fillArray(matrix, row - 2, col - 2);
-            System.out.println();
+        int totalElements = row * col;
+        int currentElements = 0;
+        int initIndex = 0;
+
+        while (currentElements < totalElements) {
+            currentElements += ((row * 2) + (col * 2)) - 4;
+            fillArray2(matrix, ((row * 2) + (col * 2)) - 4, initIndex);
+            row -= 2;
+            col -= 2;
+            initIndex++;
+
         }
 
         System.out.println();
     }
+
+    public static int[] fillArray2(int[][] matrix, int totalElements, int initIndex) {
+        int[] arr = new int[totalElements];
+        fillBorders(matrix, arr, totalElements, initIndex, initIndex, 0);
+        return arr;
+    }
+
+    public static void fillBorders(int[][] matrix, int[] arr, int totalElement, int startRow, int startCol, int indexArr) {
+
+        if (indexArr == totalElement) return;
+        else {
+
+            arr[indexArr] = matrix[startRow][startCol];
+
+            if (indexArr < (matrix[0].length - 1)) {
+                fillBorders(matrix, arr, totalElement, startRow, startCol + 1, indexArr + 1);
+                System.out.println();
+            }
+            if (startRow < (matrix.length - 1) && startCol != 0) {
+                fillBorders(matrix, arr, totalElement, startRow + 1, startCol, indexArr + 1);
+                System.out.println();
+            }
+            if (startCol > 0) {
+                fillBorders(matrix, arr, totalElement, startRow, startCol - 1, indexArr + 1);
+                System.out.println();
+            }
+            fillBorders(matrix, arr, totalElement, startRow - 1, startCol, indexArr + 1);
+            System.out.println();
+        }
+    }
+
 
     public static int[] fillArray(int[][] matrix, int row, int col) {
         int totalElements = ((row * 2) + (col * 2)) - 4;
@@ -107,22 +144,3 @@ public class MatrixRotation {
     }
 }
 
-
- /* public static void rotate(int[] arr, int ntime) {
-
-        int totalRotations = ntime % arr.length;
-
-        int[] arrRotated = new int[arr.length];
-        int indOfArr = 0;
-
-        for (int ind = totalRotations; ind < arr.length; ind++) {
-            arrRotated[ind] = arr[indOfArr];
-            indOfArr++;
-        }
-        indOfArr = 0;
-
-        for (int ind = arr.length - totalRotations; ind < arr.length; ind++) {
-            arrRotated[indOfArr] = arr[ind];
-            indOfArr++;
-        }
-    }*/
